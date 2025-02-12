@@ -288,6 +288,7 @@
                 :key="key"
                 :ticket="ticket"
                 :filas="filas"
+                :username="username"
               />
             </div>
             <div v-if="selectedTab === 'pending'">

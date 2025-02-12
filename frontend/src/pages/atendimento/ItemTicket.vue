@@ -5,7 +5,11 @@
     <q-item clickable
       style="height: auto; max-width: 100%; min-height: 130px; display: flex; flex-direction: column;"
       @click="abrirChatContato(ticket)"
-      :style="`border-left: 6px solid ${borderColor[ticket.status]}; border-radius: 10px`"
+      :style="{
+        borderLeft: `6px solid ${borderColor[ticket.status]}`,
+        borderRadius: '10px',
+        backgroundColor: ticket?.username === username ? '#58afb8' : '#d8d8d8'
+      }"
       id="item-ticket-houve"
       class="ticketBorder q-px-sm"
       :class="{
@@ -60,7 +64,8 @@
       </q-item-section>
       <q-item-section id="ListItemsTicket">
         <q-item-label class="text-bold"
-          lines="1">
+          lines="1"
+          :style="{ color: ticket.username === username ? 'black' : 'grey' }">
           {{ !ticket.name ? ticket.contact.name : ticket.name }}
           <q-icon size="20px"
             :name="`img:${ticket.channel}-logo.png`" />
@@ -109,7 +114,7 @@
         </q-item-label>
         <q-item-label class="row col items-center justify-between"
           caption>
-          Usuário: {{ ticket.username }}
+          Usuário: <q-chip class="items-left" :style="{ background: ticket.username === username ? '#269199' : 'grey', fontWeight: 'bold', color: 'white' }">{{ ticket.username }}</q-chip>
           <q-chip :color="$q.dark.isActive ? 'blue-9' : 'blue-2'"
             dense
             square
@@ -212,6 +217,11 @@ export default {
     filas: {
       type: Array,
       default: () => []
+    },
+    username: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   methods: {
