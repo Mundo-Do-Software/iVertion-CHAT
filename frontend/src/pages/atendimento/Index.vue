@@ -805,7 +805,7 @@ import ModalUsuario from 'src/pages/usuarios/ModalUsuario'
 import { ListarConfiguracoes } from 'src/service/configuracoes'
 import { ListarMensagensRapidas } from 'src/service/mensagensRapidas'
 import { ListarEtiquetas } from 'src/service/etiquetas'
-import { EditarEtiquetasContato, EditarCarteiraContato } from 'src/service/contatos'
+import { EditarEtiquetasContato, EditarCarteiraContato, ObterContato } from 'src/service/contatos'
 import { RealizarLogout } from 'src/service/login'
 import { ListarUsuarios } from 'src/service/user'
 import MensagemChat from './MensagemChat.vue'
@@ -984,13 +984,30 @@ export default {
       try {
         const { data } = await ConsultarTickets(params)
         this.countTickets = data.count // count total de tickets no status
-        this.$store.commit('LOAD_TICKETS', data.tickets)
+
+        // Buscar os contatos antes de atualizar os tickets
+        const ticketsComContato = await Promise.all(
+          data.tickets.map(async (ticket) => {
+            if (!ticket.contact) {
+              try {
+                // Buscar informações do contato do ticket
+                const { data: contato } = await ObterContato(ticket.contactId)
+                ticket.contact = contato
+              } catch (error) {
+                console.error(`Erro ao buscar contato para ticket ${ticket.id}:`, error)
+                ticket.contact = { name: 'Contato não encontrado', tags: [] }
+              }
+            }
+            return ticket
+          })
+        )
+
+        this.$store.commit('LOAD_TICKETS', ticketsComContato)
         this.$store.commit('SET_HAS_MORE', data.hasMore)
       } catch (err) {
         this.$notificarErro('Algum problema', err)
         console.error(err)
       }
-      // return () => clearTimeout(delayDebounceFn)
     },
     async BuscarTicketFiltro () {
       this.$store.commit('RESET_TICKETS')
