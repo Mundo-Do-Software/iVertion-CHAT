@@ -3,7 +3,7 @@
     style="max-width: 370px"
     class="q-px-sm q-py-none q-pt-sm">
     <q-item clickable
-      style="height: 95px; max-width: 100%;"
+      style="height: auto; max-width: 100%; min-height: 130px; display: flex; flex-direction: column;"
       @click="abrirChatContato(ticket)"
       :style="`border-left: 6px solid ${borderColor[ticket.status]}; border-radius: 10px`"
       id="item-ticket-houve"
@@ -146,6 +146,17 @@
             </q-tooltip>
           </q-btn>
         </q-item-section>
+        <!-- Seção de Etiquetas dentro do Ticket, abaixo do nome do usuário -->
+        <q-item-label class="q-mt-sm">
+          <span class="text-caption text-grey-8">Etiquetas:</span>
+          <div class="row q-gutter-xs q-mt-xs">
+            <q-chip v-for="(tag, index) in ticket.contact?.tags" :key="index"
+              :style="`background-color: ${tag.color}; color: white; padding: 4px 12px; clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%, 0% 50%); border-radius: 0px 10px 10px 0px;`"
+              class="q-mr-sm q-mb-xs">
+              {{ tag.tag }}
+            </q-chip>
+          </div>
+        </q-item-label>
       </q-item-section>
     </q-item>
     <q-separator color="grey-2"
@@ -192,8 +203,7 @@ export default {
   props: {
     ticket: {
       type: Object,
-      default: () => {
-      }
+      default: () => ({ contact: { tags: [] } })
     },
     buscaTicket: {
       type: Boolean,
@@ -234,9 +244,9 @@ export default {
     }
   },
   created () {
-    setInterval(() => {
-      this.recalcularHora++
-    }, 20000)
+    if (!this.ticket.contact?.tags) {
+      this.$set(this.ticket, 'contact', { ...this.ticket.contact, tags: [] })
+    }
   }
 }
 </script>
